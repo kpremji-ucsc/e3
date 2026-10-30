@@ -5,7 +5,10 @@ const spin = document.querySelector<HTMLButtonElement>("#spin")!;
 const face = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 face.setAttribute("viewBox", "0 0 200 200");
 face.setAttribute("role", "img");
-face.setAttribute("aria-label", "A neutral face");
+face.setAttribute(
+  "aria-label",
+  "A freckled face surrounded by a spiky golden halo",
+);
 
 const head = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
 head.setAttribute("cx", "100");
@@ -58,6 +61,50 @@ mouth.setAttribute("stroke", "#302c29");
 mouth.setAttribute("stroke-width", "4");
 mouth.setAttribute("stroke-linecap", "round");
 face.append(mouth);
+
+// ellipse centered at 100, 100
+const onEllipse = (rx: number, ry: number, a: number): string =>
+  `${100 + rx * Math.cos(a)},${100 + ry * Math.sin(a)}`;
+
+// 60 triangles along the headline
+const SPIKES = 60;
+for (let i = 0; i < SPIKES; i++) {
+  const angle = (i / SPIKES) * Math.PI * 2;
+  const halfWidth = (Math.PI / SPIKES) * 0.7;
+  const length = i % 2 === 0 ? 10 : 5;
+  const spike = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "polygon",
+  );
+  spike.setAttribute(
+    "points",
+    [
+      onEllipse(81, 89, angle - halfWidth),
+      onEllipse(81 + length, 89 + length, angle),
+      onEllipse(81, 89, angle + halfWidth),
+    ].join(" "),
+  );
+  spike.setAttribute("fill", "#e0a030");
+  face.append(spike);
+}
+
+// 30 freckles on each cheek scattered around
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+for (const [cx, cy] of [[70, 112], [130, 112]]) {
+  for (let i = 0; i < 30; i++) {
+    const dist = 14 * Math.sqrt(i / 30);
+    const angle = i * GOLDEN_ANGLE;
+    const freckle = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle",
+    );
+    freckle.setAttribute("cx", String(cx + dist * Math.cos(angle)));
+    freckle.setAttribute("cy", String(cy + dist * Math.sin(angle) * 0.7));
+    freckle.setAttribute("r", String(1.2 + (i % 3) * 0.4));
+    freckle.setAttribute("fill", "#8a4b2a");
+    face.append(freckle);
+  }
+}
 
 portrait.append(face);
 
